@@ -1,0 +1,48 @@
+/*
+ * Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+ * Copyright (c) 2010-2013, NVIDIA CORPORATION.  All rights reserved.
+
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+/*
+ * This file holds Chrome OS-specific options, kept within a chromeos-config
+ * NOTE: The addresses below are for T30-and-above SoCs, i.e. NOT T20!
+ */
+
+/include/ "factory-friendly.dtsi"
+
+/ {
+	chromeos-config {
+		twostop;		/* Two-stop boot */
+		twostop-optional;       /* One-stop optimization enabled */
+		textbase = <0x80108000>;  /* Address where U-Boot loads */
+
+		cros-gpio-input-charging-delay = <10>;
+
+		/*
+		 * Device and offset for second-stage firmware, in SPI for now
+		 * second-stage = <&emmc 0x00000080 0>;
+		 */
+
+		/*
+		 * Memory addresses (offsets off the DRAM base) for kernel,
+		 * cros-system and gbb
+		 */
+		kernel-offset = <0x00408000 0x00800000>;
+		cros-system-data-offset = <0x00C08000 0x8000>;
+		google-binary-block-offset = <0x00C10000 0x80000>;
+
+		firmware-storage = <&firmware_storage_spi>;
+		nvstorage-media = "cros-ec";
+	};
+
+	config {
+		silent_console = <0>;
+	};
+
+	chosen {
+		bootargs = "";
+	};
+};

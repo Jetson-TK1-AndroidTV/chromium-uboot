@@ -1,0 +1,50 @@
+/*
+ * Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+/*
+ * This file holds Chrome OS-specific options for Exynos, kept within a
+ * chromeos-config node.
+ */
+
+/include/ "factory-friendly.dtsi"
+
+/ {
+	chromeos-config {
+		twostop;		/* Two-stop boot */
+		twostop-optional;       /* One-stop optimization enabled */
+		textbase = <0x43e00000>;/* Address where U-Boot loads */
+		twostop-device = "emmc";/* Place for second stage firmware */
+		boot-device = "emmc";	/* Where SPL loads U-Boot from */
+		flash-method = "exynos";/* How to flash the board */
+		firmware-storage = <&firmware_storage_spi>;
+		nvstorage-media = "cros-ec";
+		ec-software-sync;       /* EC firmware in sync with BIOS */
+		ec-slow-update;         /* Display WAIT screen when updating */
+
+		/*
+		 * Memory regions' offsets from DRAM base and sizes for
+		 * kernel, cros-system and gbb.
+		 */
+		kernel-offset = <0x00008000 0x00800000>;
+		cros-system-data-offset = <0x00808000 0x8000>;
+		google-binary-block-offset = <0x00810000 0x100000>;
+		cros-system-data-memory,efs = "/iram";
+		cros-system-data-offset,efs = <0x00051800 0x13c0>;
+		vboot-persist-memory = "/iram";
+		vboot-persist-offset = <0x00052bc0 0x40>;
+		vboot-persist-memory,efs = "/iram";
+		vboot-persist-offset,efs = <0x00052bc0 0x40>;
+	};
+
+	config {
+		silent_console = <0>;
+	};
+
+	chosen {
+		bootargs = "";
+	};
+
+};

@@ -1,0 +1,59 @@
+Chrome OS dts config bindings
+=============================
+
+Note: EFS mean Early Firmware Selection, where the read-only firmware runs
+from internal on-chip ram (IRAM) instead of SDRAM.
+
+cros-system-data-offset
+  location (offset into DRAM and size) of the memory area allocated for
+  crossystem data on Exynos platforms.
+
+faft-key-remap-ascii - Array for simple ascii key remap.
+ You may remap up to three keys if the GBB flag is set.
+ Keys are paired with incoming key and remapped key.
+ example remap '\' to SPACE:
+     faft-key-remap-ascii = <0x5c 0x0D 0 0 0 0>;
+
+faft-key-remap-special - Array for special key remap.
+ You may remap up to three keys if the GBB flag is set.
+ Keys are paired with incoming key and remapped key.
+ Special keys are pre-stripped of ESCAPE and '['.
+ example remap 'F9' to ENTER:
+ faft-key-remap-special = <0x32 0x20 0 0 0 0>;
+
+google-binary-block-offset
+  location (offset into DRAM and size) of the memory area allocated for
+  gbb on Exynos platforms.
+
+kernel-offset
+  location (offset into DRAM and size) of the memory area allocated for
+  kernel blob on Exynos platforms.
+
+skip-i8042
+	If present, i8042 init is skipped, which means that an attached
+	i8042 keyboard will not be activated.
+
+usb-keyboard
+	If present, indicates that the machine has a USB keyboard as the
+	primary input, so it will be set up before boot proceeds.
+
+early-firmware-selection
+	Enable early firmware selection. This has the following effects:
+
+	1. In the flashmap, the 'type,efs' property is used in preference
+	to 'type'.
+
+	2. In /config, u-boot-memory,efs and u-boot-offset,efs are used
+	instead of  u-boot-memory and u-boot-offset.
+
+	3. In vboot, RO firmware loads the RW spl regions instead of the
+	RW boot regions.
+
+early-firmware-verification
+	Fully verify the U-Boot that SPL will load before returning success
+	to vboot in VbExHashFirmwareBody().
+
+disable-memory-clear
+	Disable memory clear, ie, bypass function wipe_unused_memory(). This
+	flag is useful for boards where memory clear is not absolutely needed
+	because it may save a few seconds of booting time.
