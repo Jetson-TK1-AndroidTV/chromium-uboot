@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <mapmem.h>
 #include <asm/errno.h>
 #include <asm/io.h>
 #include <cros_ec.h>
@@ -125,6 +126,8 @@ VbError_t VbExRegionRead(VbCommonParams *cparams,
 		return VBERROR_REGION_READ_INVALID;
 	}
 
+// 	VBDEBUG("VbExRegionRead, offset=%x, size=%x\n",
+// 		vboot->fmap.readonly.gbb.offset + offset, size);
 	if (file->read(file, vboot->fmap.readonly.gbb.offset + offset, size,
 		       buf)) {
 		VBDEBUG("failed to read from gbb offset %x sze %x\n",

@@ -442,7 +442,7 @@ static int test_write_limit(void)
 	/* above blank line is a part of the macro */
 
 #define VOIDENT(XNAME) \
-  U_BOOT_CMD_MKENT(XNAME, 0, 1, do_test_##XNAME, "", "")
+  U_BOOT_CMD_MKENT(XNAME, 0, 1, do_test_##XNAME, "", ""),
 
 VOIDTEST(early_extend)
 VOIDTEST(early_nvram)
@@ -459,7 +459,7 @@ VOIDTEST(timing)
 VOIDTEST(write_limit)
 VOIDTEST(timer)
 
-U_BOOT_SUBCMD_START(cmd_cros_tpm_sub)
+static cmd_tbl_t cmd_cros_tpm_sub[] = {
 	VOIDENT(early_extend)
 	VOIDENT(early_nvram)
 	VOIDENT(early_nvram2)
@@ -474,7 +474,7 @@ U_BOOT_SUBCMD_START(cmd_cros_tpm_sub)
 	VOIDENT(timing)
 	VOIDENT(write_limit)
 	VOIDENT(timer)
-U_BOOT_SUBCMD_END
+};
 
 /* u-boot shell commands
  */

@@ -9,10 +9,12 @@
  */
 
 #include <common.h>
+#include <inttypes.h>
 #include <cros/common.h>
 #include <cros/memory_wipe.h>
 #include <malloc.h>
 #include <physmem.h>
+#include <asm/io.h>
 
 #include <vboot_api.h>
 
@@ -99,7 +101,8 @@ static void memory_wipe_set_region_to(struct memory_wipe *wipe_info,
 void memory_wipe_add(struct memory_wipe *wipe, phys_addr_t start,
 		     phys_addr_t end)
 {
-	debug("%s: start=%llx, end=%llx\n", __func__, (u64)start, (u64)end);
+	debug("%s: start=%" PRIx64 ", end=%" PRIx64 "\n", __func__,
+	      (u64)start, (u64)end);
 	memory_wipe_set_region_to(wipe, start, end, 1);
 }
 
@@ -107,7 +110,8 @@ void memory_wipe_add(struct memory_wipe *wipe, phys_addr_t start,
 void memory_wipe_sub(struct memory_wipe *wipe, phys_addr_t start,
 		     phys_addr_t end)
 {
-	debug("%s: start=%llx, end=%llx\n", __func__, (u64)start, (u64)end);
+	debug("%s: start=%" PRIx64 ", end=%" PRIx64 "\n", __func__,
+	      (u64)start, (u64)end);
 	memory_wipe_set_region_to(wipe, start, end, 0);
 }
 
@@ -130,6 +134,6 @@ void memory_wipe_execute(struct memory_wipe *wipe)
 
 		VBDEBUG("\t[%#016llx, %#016llx)\n",
 			(unsigned long long)start, (unsigned long long)end);
-		arch_phys_memset(start, 0, end - start);
+// 		arch_phys_memset(map_sysmem(start, 0), 0, end - start);
 	}
 }

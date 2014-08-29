@@ -15,7 +15,9 @@
 #include <fdtdec.h>
 #include <lcd.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <os.h>
+#include <spl.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
 #include <cros/boot_kernel.h>
@@ -63,7 +65,11 @@
 #include <asm/state.h>
 #endif
 
-/*
+/****************************************************************************
+ *
+ * NOTE: This file is deprecated. We now use cmd_vboot.c instead.
+ *
+ ****************************************************************************
  * The current design of twostop firmware, if we use x86 firmware design as a
  * metaphor, twostop firmware has:
  * - One bootstub that select one of the main firmware
@@ -261,7 +267,7 @@ static int lcd_fb_size(void)
 #endif
 
 extern uint8_t _start;
-extern uint8_t __bss_end;
+extern char __bss_end[];
 
 static void setup_arch_unused_memory(struct memory_wipe *wipe,
 	crossystem_data_t *cdata, VbCommonParams *cparams)
@@ -695,7 +701,7 @@ twostop_select_and_set_main_firmware(struct twostop_fmap *fmap,
 	}
 
 	if (file->read(file, id_offset,
-		       MIN(sizeof(firmware_id), id_length),
+		       min((uint)sizeof(firmware_id), id_length),
 		       firmware_id)) {
 		VBDEBUG("failed to read active firmware id\n");
 		firmware_id[0] = '\0';
@@ -740,7 +746,7 @@ twostop_jump(crossystem_data_t *cdata, void *fw_blob, uint32_t fw_size,
 	switch (entry->compress) {
 #ifdef CONFIG_LZO
 	case CROS_COMPRESS_LZO: {
-		uint unc_len;
+		size_t unc_len;
 		int ret;
 
 		bootstage_start(BOOTSTAGE_ID_ACCUM_DECOMP, "decompress_image");
@@ -824,7 +830,7 @@ twostop_init(struct twostop_fmap *fmap, firmware_storage_t *file,
 
 					/* Read read-only firmware ID */
 	if (file->read(file, fmap->readonly.firmware_id.offset,
-		       MIN(sizeof(readonly_firmware_id),
+		       min((uint)sizeof(readonly_firmware_id),
 		       fmap->readonly.firmware_id.length),
 		       readonly_firmware_id)) {
 		VBDEBUG("failed to read firmware ID\n");
@@ -841,7 +847,7 @@ twostop_init(struct twostop_fmap *fmap, firmware_storage_t *file,
 
 	gbbh = (GoogleBinaryBlockHeader *)gbb;
 	memcpy(hardware_id, gbb + gbbh->hwid_offset,
-	       MIN(sizeof(hardware_id), gbbh->hwid_size));
+	       min((uint)sizeof(hardware_id), gbbh->hwid_size));
 	VBDEBUG("hardware id: \"%s\"\n", hardware_id);
 
 	/* Initialize crossystem data */

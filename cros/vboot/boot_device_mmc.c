@@ -7,7 +7,7 @@
  * GNU General Public License ("GPL") version 2 as published by the Free
  * Software Foundation.
  */
-
+#define DEBUG
 #include <common.h>
 #include <mmc.h>
 #include <cros/common.h>
@@ -24,11 +24,13 @@ static int boot_device_mmc_scan(block_dev_desc_t **desc, int max_devs,
 {
 	int index, found;
 
+	debug("%s\n", __func__);
 	for (index = found = 0; index < max_devs; index++) {
 		struct mmc *mmc;
 		uint32_t flags;
 
 		mmc = find_mmc_device(index);
+		debug("%s: index=%d, mmc=%p\n", __func__, index, mmc);
 		if (!mmc)
 			break;
 

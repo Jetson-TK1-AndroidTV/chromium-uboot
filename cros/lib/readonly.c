@@ -13,9 +13,12 @@
 #include <errno.h>
 #include <hash.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <os.h>
-#include <sha256.h>
+#include <u-boot/sha256.h>
 #include <spi_flash.h>
+#include <spl.h>
+#include <tis.h>
 #include <asm/io.h>
 #include <linux/lzo.h>
 #include <cros/common.h>
@@ -112,7 +115,7 @@ int vboot_ro_init(struct vboot_info *vboot)
 	/* Read read-only firmware ID */
 	if (vboot->file.read(&vboot->file,
 			     vboot->fmap.readonly.firmware_id.offset,
-			     MIN(sizeof(vboot->readonly_firmware_id),
+			     min((uint)sizeof(vboot->readonly_firmware_id),
 			     vboot->fmap.readonly.firmware_id.length),
 			     vboot->readonly_firmware_id)) {
 		VBDEBUG("failed to read firmware ID\n");
@@ -133,7 +136,8 @@ int vboot_ro_init(struct vboot_info *vboot)
 	}
 	if (vboot->file.read(&vboot->file,
 			     vboot->fmap.readonly.gbb.offset + gbb.hwid_offset,
-			     MIN(sizeof(vboot->hardware_id), gbb.hwid_size),
+			     min((uint)sizeof(vboot->hardware_id),
+				 gbb.hwid_size),
 			     &vboot->hardware_id)) {
 		VBDEBUG("failed to read hardware ID\n");
 		goto err;
@@ -308,11 +312,6 @@ static void wipe_unused_memory(struct vboot_info *vboot)
 		memory_wipe_sub(&wipe,
 				get_current_sp() - MEMORY_WIPE_STACK_MARGIN,
 				gd->ram_top);
-
-		if (gd_no_reloc()) {
-			memory_wipe_sub(&wipe, CONFIG_SYS_TEXT_BASE,
-					CONFIG_SYS_TEXT_BASE + gd->mon_len);
-		}
 	}
 
 	memory_wipe_execute(&wipe);
@@ -378,7 +377,7 @@ VbError_t vboot_hash_firmware(struct vboot_info *vboot,
 		return 1;
 	}
 	for (offset = 0; offset < fw_size; offset += todo) {
-		todo = min(fw_size - offset, buf_size);
+		todo = min(fw_size - offset, (uint)buf_size);
 
 		if (vboot->file.read(&vboot->file, entry->offset + offset,
 				     todo, buf)) {
@@ -599,7 +598,7 @@ int vboot_ro_select_firmware(struct vboot_info *vboot)
 	}
 
 	entry = &fw->fw_entry->firmware_id;
-	len = MIN(sizeof(vboot->firmware_id), entry->length);
+	len = min((uint)sizeof(vboot->firmware_id), entry->length);
 	if (vboot->file.read(&vboot->file, entry->offset,
 			     len, vboot->firmware_id)) {
 		VBDEBUG("failed to read active firmware id\n");
@@ -729,7 +728,7 @@ int vboot_ro_prepare(struct vboot_info *vboot)
 		switch (fw->entry->compress_algo) {
 #ifdef CONFIG_LZO
 		case FMAP_COMPRESS_LZO: {
-			uint unc_len;
+			size_t unc_len;
 			int ret;
 
 			bootstage_start(BOOTSTAGE_ID_ACCUM_DECOMP,
@@ -805,6 +804,7 @@ int vboot_ro_jump(struct vboot_info *vboot)
 		if (vboot->selected_firmware == VB_SELECT_FIRMWARE_RECOVERY ||
 		    vboot->selected_firmware == VB_SELECT_FIRMWARE_READONLY) {
 			VBDEBUG("RO-normal support, skipping jump\n");
+			tis_close();
 			return 0;
 		}
 	}

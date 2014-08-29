@@ -72,7 +72,8 @@ int gbb_read_bmp_block(void *gbb, firmware_storage_t *file, uint32_t gbb_offset,
 	uint32_t bmpfv_end = gbbh->bmpfv_offset + gbbh->bmpfv_size;
 
 	if (bmpfv_end < gbbh->bmpfv_offset || bmpfv_end > gbb_size) {
-		VBDEBUG("%s: invalid gbb header entries\n", __func__);
+		VBDEBUG("%s: invalid gbb header entries, bmpfv_end=%x, gbbh->bmpfv_offset=%x, gbb_size=%x\n",
+			__func__, bmpfv_end, gbbh->bmpfv_offset, gbb_size);
 		return 1;
 	}
 

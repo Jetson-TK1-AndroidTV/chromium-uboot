@@ -619,6 +619,16 @@ int cros_ec_flash_protect(struct cros_ec_dev *dev,
 	return 0;
 }
 
+int cros_ec_entering_mode(struct cros_ec_dev *dev, int mode)
+{
+	int rc;
+	rc = ec_command(dev, EC_CMD_ENTERING_MODE, 0,
+		&mode, sizeof(mode), NULL, 0);
+	if (rc)
+		return -1;
+	return 0;
+}
+
 static int cros_ec_check_version(struct cros_ec_dev *dev)
 {
 	struct ec_params_hello req;

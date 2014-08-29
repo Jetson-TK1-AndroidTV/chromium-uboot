@@ -8,24 +8,5 @@
 # Software Foundation.
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)libcros_board.o
-
-COBJS-$(CONFIG_CHROMEOS) += power_management.o
-COBJS-$(CONFIG_CHROMEOS) += legacy.o
-
-COBJS	:= $(COBJS-y)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-
-$(LIB):	$(obj).depend $(OBJS)
-	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+obj-$(CONFIG_CHROMEOS) += power_management.o
+obj-$(CONFIG_CHROMEOS) += legacy.o

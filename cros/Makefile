@@ -7,4 +7,5 @@
 obj-$(CONFIG_CHROMEOS) += cmd/
 obj-$(CONFIG_CHROMEOS) += lib/
 obj-$(CONFIG_CHROMEOS) += vboot/
-obj-$(CONFIG_CHROMEOS) += $(SOC)/
+obj-y += $(CONFIG_SYS_SOC)/
+obj-$(CONFIG_SANDBOX) += sandbox/

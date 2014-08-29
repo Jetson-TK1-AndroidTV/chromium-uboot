@@ -18,6 +18,7 @@
 static VbError_t nvstorage_read_cros_ec(uint8_t *buf)
 {
 	struct cros_ec_dev *dev;
+	int ret;
 
 	dev = board_get_cros_ec_dev();
 	if (!dev) {
@@ -25,8 +26,11 @@ static VbError_t nvstorage_read_cros_ec(uint8_t *buf)
 		return 1;
 	}
 
-	if (cros_ec_read_vbnvcontext(dev, buf))
+	ret = cros_ec_read_vbnvcontext(dev, buf);
+	if (ret) {
+		VBDEBUG("%s failed, ret=%d\n", __func__, ret);
 		return 1;
+	}
 
 	return VBERROR_SUCCESS;
 }
@@ -34,15 +38,20 @@ static VbError_t nvstorage_read_cros_ec(uint8_t *buf)
 static VbError_t nvstorage_write_cros_ec(const uint8_t *buf)
 {
 	struct cros_ec_dev *dev;
+	int ret;
 
+	VBDEBUG("%s\n", __func__);
 	dev = board_get_cros_ec_dev();
 	if (!dev) {
 		VBDEBUG("%s: no cros_ec device\n", __func__);
 		return 1;
 	}
 
-	if (cros_ec_write_vbnvcontext(dev, buf))
+	ret = cros_ec_write_vbnvcontext(dev, buf);
+	if (ret) {
+		VBDEBUG("%s failed, ret=%d\n", __func__, ret);
 		return 1;
+	}
 
 	return VBERROR_SUCCESS;
 }

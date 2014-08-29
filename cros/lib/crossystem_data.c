@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <gbb_header.h> /* for GoogleBinaryBlockHeader */
+#include <mapmem.h>
 #include <asm/io.h>
 #include <cros/common.h>
 #include <cros/crossystem_data.h>
@@ -163,9 +164,9 @@ static int process_cdata(crossystem_data_t *cdata, void *fdt)
 			} \
 		} while (0)
 	err = 0;
-	CALL(fdt_ensure_subnode(fdt, 0, "firmware"));
+	CALL(fdt_find_or_add_subnode(fdt, 0, "firmware"));
 	nodeoffset = err;
-	CALL(fdt_ensure_subnode(fdt, nodeoffset, "chromeos"));
+	CALL(fdt_find_or_add_subnode(fdt, nodeoffset, "chromeos"));
 	nodeoffset = err;
 	printf("nodeoffset = %d\n", nodeoffset);
 

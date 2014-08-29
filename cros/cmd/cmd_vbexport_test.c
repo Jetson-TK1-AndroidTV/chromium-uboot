@@ -17,6 +17,7 @@
 #include <common.h>
 #include <command.h>
 #include <gbb_header.h>
+#include <mapmem.h>
 #include <asm/io.h>
 #include <cros/cros_init.h>
 #include <cros/firmware_storage.h>
@@ -69,7 +70,7 @@ static int do_vbexport_test_malloc_size(uint32_t size)
 	int i, line_size;
 
 #if CONFIG_ARM
-	line_size = dcache_get_line_size();
+	line_size = ARCH_DMA_MINALIGN;
 #elif defined CACHE_LINE_SIZE
 	line_size = CACHE_LINE_SIZE;
 #else
@@ -632,6 +633,9 @@ static int do_vbexport_test_image(cmd_tbl_t *cmdtp, int flag,
 				break;
 			image = (ImageInfo *)((uint8_t *)bmph +
 				screen->images[inum].image_info_offset);
+			if (image->format != FORMAT_BMP)
+				continue;
+#if 0
 			VbExDebug("   Image: %d at %d, %d: offset=%#x, "
 				"size=%#x, end=%#x\n", inum,
 				  screen->images[inum].x,
@@ -642,6 +646,7 @@ static int do_vbexport_test_image(cmd_tbl_t *cmdtp, int flag,
 				  gbbh->bmpfv_offset +
 				  screen->images[inum].image_info_offset +
 					image->compressed_size);
+#endif
 			show_image(image, screen->images[inum].x,
 				   screen->images[inum].y);
 		}
@@ -699,24 +704,24 @@ static int do_vbexport_init(cmd_tbl_t *cmdtp, int flag,
 	return cros_init();
 }
 
-U_BOOT_SUBCMD_START(cmd_vbexport_test_sub)
-	U_BOOT_CMD_MKENT(init, 0, 1, do_vbexport_init, "", "")
-	U_BOOT_CMD_MKENT(all, 0, 1, do_vbexport_test_all, "", "")
-	U_BOOT_CMD_MKENT(debug, 0, 1, do_vbexport_test_debug, "", "")
-	U_BOOT_CMD_MKENT(malloc, 0, 1, do_vbexport_test_malloc, "", "")
-	U_BOOT_CMD_MKENT(sleep, 0, 1, do_vbexport_test_sleep, "", "")
-	U_BOOT_CMD_MKENT(longsleep, 0, 1, do_vbexport_test_longsleep, "", "")
-	U_BOOT_CMD_MKENT(beep, 0, 1, do_vbexport_test_beep, "", "")
-	U_BOOT_CMD_MKENT(diskinfo, 0, 1, do_vbexport_test_diskinfo, "", "")
-	U_BOOT_CMD_MKENT(diskrw, 0, 1, do_vbexport_test_diskrw, "", "")
-	U_BOOT_CMD_MKENT(nvrw, 0, 1, do_vbexport_test_nvrw, "", "")
-	U_BOOT_CMD_MKENT(nvclear, 0, 1, do_vbexport_test_nvclear, "", "")
-	U_BOOT_CMD_MKENT(key, 0, 1, do_vbexport_test_key, "", "")
-	U_BOOT_CMD_MKENT(display, 0, 1, do_vbexport_test_display, "", "")
-	U_BOOT_CMD_MKENT(isshutdown, 0, 1, do_vbexport_test_isshutdown, "", "")
-	U_BOOT_CMD_MKENT(image, 0, 1, do_vbexport_test_image, "", "")
-	U_BOOT_CMD_MKENT(flags, 0, 1, do_vbexport_test_flags, "", "")
-U_BOOT_SUBCMD_END
+static cmd_tbl_t cmd_vbexport_test_sub[] = {
+	U_BOOT_CMD_MKENT(init, 0, 1, do_vbexport_init, "", ""),
+	U_BOOT_CMD_MKENT(all, 0, 1, do_vbexport_test_all, "", ""),
+	U_BOOT_CMD_MKENT(debug, 0, 1, do_vbexport_test_debug, "", ""),
+	U_BOOT_CMD_MKENT(malloc, 0, 1, do_vbexport_test_malloc, "", ""),
+	U_BOOT_CMD_MKENT(sleep, 0, 1, do_vbexport_test_sleep, "", ""),
+	U_BOOT_CMD_MKENT(longsleep, 0, 1, do_vbexport_test_longsleep, "", ""),
+	U_BOOT_CMD_MKENT(beep, 0, 1, do_vbexport_test_beep, "", ""),
+	U_BOOT_CMD_MKENT(diskinfo, 0, 1, do_vbexport_test_diskinfo, "", ""),
+	U_BOOT_CMD_MKENT(diskrw, 0, 1, do_vbexport_test_diskrw, "", ""),
+	U_BOOT_CMD_MKENT(nvrw, 0, 1, do_vbexport_test_nvrw, "", ""),
+	U_BOOT_CMD_MKENT(nvclear, 0, 1, do_vbexport_test_nvclear, "", ""),
+	U_BOOT_CMD_MKENT(key, 0, 1, do_vbexport_test_key, "", ""),
+	U_BOOT_CMD_MKENT(display, 0, 1, do_vbexport_test_display, "", ""),
+	U_BOOT_CMD_MKENT(isshutdown, 0, 1, do_vbexport_test_isshutdown, "", ""),
+	U_BOOT_CMD_MKENT(image, 0, 1, do_vbexport_test_image, "", ""),
+	U_BOOT_CMD_MKENT(flags, 0, 1, do_vbexport_test_flags, "", ""),
+};
 
 static int do_vbexport_test(cmd_tbl_t *cmdtp, int flag,
 		int argc, char * const argv[])

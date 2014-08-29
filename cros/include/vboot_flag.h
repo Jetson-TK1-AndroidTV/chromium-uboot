@@ -13,6 +13,7 @@
 #ifndef __VBOOT_FLAG_H__
 #define __VBOOT_FLAG_H__
 
+#include <asm-generic/gpio.h>
 #include <fdtdec.h>
 
 #define VBOOT_FLAGS							\
@@ -36,7 +37,7 @@ struct vboot_flag_context {
 	int config_node;	/* offset of the config node in fdt */
 	int node;		/* offset of the vboot flag node in fdt */
 	int initialized;	/* 1 if the driver is initialized; 0 if not */
-	struct fdt_gpio_state gpio_state;	/* the gpio state of fdt */
+	struct gpio_desc gpio_state;	/* the gpio state */
 	int gpio_valid_time;	/* time of delay when gpio value is valid */
 	/* previous value of the flag (1 or 0), or -1 if not known */
 	int prev_value;

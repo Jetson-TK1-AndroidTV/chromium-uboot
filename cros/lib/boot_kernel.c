@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <part.h>
 #include <asm/io.h>
 #include <linux/compiler.h>

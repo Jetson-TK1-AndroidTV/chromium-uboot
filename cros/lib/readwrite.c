@@ -11,6 +11,7 @@
 #include <common.h>
 #include <bootstage.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <tss_constants.h>
 #include <asm/io.h>
 #include <cros/boot_kernel.h>
@@ -124,6 +125,7 @@ int vboot_rw_select_kernel(struct vboot_info *vboot)
 		vboot_set_error(vboot, "VbSelectAndLoadKernel", err);
 		if (err == VBERROR_EC_REBOOT_TO_RO_REQUIRED)
 			vboot_request_ec_reboot_to_ro();
+		vboot->vb_error = err;
 		return -1;
 	}
 

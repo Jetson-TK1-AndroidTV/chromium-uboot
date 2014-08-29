@@ -220,6 +220,20 @@ VbError_t VbExEcProtectRW(int devidx)
 	return ec_protect_rw(1);
 }
 
+VbError_t VbExEcEnteringMode(int devidx, enum VbEcBootMode_t mode)
+{
+	struct cros_ec_dev *mdev = board_get_cros_ec_dev();
+
+	if (devidx != 0)
+		return VBERROR_UNKNOWN;
+
+	if (!mdev) {
+		VBDEBUG("%s: no cros_ec device\n", __func__);
+		return VBERROR_UNKNOWN;
+	}
+	return cros_ec_entering_mode(mdev, mode);
+}
+
 VbError_t VbExEcGetExpectedRW(int devidx, enum VbSelectFirmware_t select,
 			      const uint8_t **image, int *image_size)
 {

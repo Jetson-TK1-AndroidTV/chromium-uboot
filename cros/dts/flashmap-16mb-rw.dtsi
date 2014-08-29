@@ -36,7 +36,7 @@
 		rw-a {
 			label = "rw-section-a";
 			/* Alignment: 4k (for updating) */
-			reg = <0x00800000 0x00300000>;
+			size = <0x3c0000>;
 			block-offset = /bits/ 64 <0x00004400>;
 		};
 		rw-a-vblock {
@@ -54,12 +54,12 @@
 		rw-a-boot {
 			/* Alignment: no requirement (yet). */
 			label = "fw-main-a";
-			size = <0x300000>;
+			size = <0x3a0000>;
 			type = "blob boot,dtb";
 		};
 		rw-a-ec {
 			label = "ec-rw-a";
-			size = <0xf0000>;
+			size = <0xf000>;
 			type = "blob ecrw";
 			add-hash;
 		};
@@ -75,14 +75,14 @@
 		rw-b {
 			label = "rw-section-b";
 			/* Alignment: 4k (for updating) */
-			reg = <0x00c00000 0x00300000>;
+			size = <0x3c0000>;
 			block-offset = /bits/ 64 <0x00084400>;
 		};
 		rw-b-vblock {
 			label = "vblock-b";
 			/* Alignment: 4k (for updating) and must be in start of
 			 * each RW_SECTION. */
-			reg = <0xc00000 0x2000>;
+			size = <0x2000>;
 			type = "keyblock boot,dtb";
 			keyblock = "firmware.keyblock";
 			signprivate = "firmware_data_key.vbprivk";
@@ -93,7 +93,7 @@
 		rw-b-boot {
 			label = "fw-main-b";
 			/* Alignment: no requirement (yet). */
-			size = <0x300000>;
+			size = <0x3a0000>;
 			type = "blob boot,dtb";
 		};
 		rw-b-ec {
@@ -114,7 +114,7 @@
 		rw-vpd {
 			label = "rw-vpd";
 			/* Alignment: 4k (for updating) */
-			reg = <0x00f80000 0x00008000>;
+			size = <0x00008000>;
 			type = "wiped";
 			wipe-value = [ff];
 		};
@@ -124,13 +124,13 @@
 			/* Alignment: 4k (for updating).
 			 * Anything in this range may be updated in recovery. */
 			label = "rw-shared";
-			reg = <0x00ff8000 0x00004000>;
+			size = <0x00004000>;
 		};
 		shared-data {
 			label = "shared-data";
 			/* Alignment: 4k (for random read/write).
 			 * RW firmware can put calibration data here. */
-			reg = <0x00ff8000 0x00004000>;
+			size = <0x00004000>;
 			type = "wiped";
 			wipe-value = [00];
 		};
@@ -138,13 +138,13 @@
 		private-section {
 			/* Anything in this range will never be updated */
 			label = "rw-private";
-			reg = <0x00ffc000 0x00004000>;
+			size = <0x00004000>;
 		};
 		rw-environment {
 			label = "rw-environment";
 			/* Alignment: 4k, and must occupy bottom of U-Boot
 			 * firmware -- check CONFIG_ENV_OFFSET */
-			reg = <0x00ffc000 0x00004000>;
+			size = <0x00004000>;
 
 			/*
 			 * We could put the dev environment here, but U-Boot has

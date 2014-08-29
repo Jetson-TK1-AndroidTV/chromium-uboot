@@ -20,6 +20,7 @@ int is_processor_reset(void)
 {
 	struct sandbox_state *state = state_get_current();
 
+	printf("Processor reset: %s\n", state->jumped_fname ? "no" : "yes");
 	return !state->jumped_fname;
 }
 

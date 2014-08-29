@@ -11,10 +11,17 @@
 /* Implementation of per-board power management function */
 
 #include <common.h>
+#include <errno.h>
 #include <i2c.h>
+#include <spl.h>
 #include <asm/arch/clock.h>
+#include <asm/arch-tegra/sys_proto.h>
+#include <asm-generic/gpio.h>
 #include <cros/common.h>
 #include <cros/power_management.h>
+#include <power/as3722.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * This file is directly copied from cros/tegra114/power_management.c.
@@ -27,17 +34,23 @@
 
 int is_processor_reset(void)
 {
-	/* TODO(twarren@nvidia.com): add board-specific code */
-	return 1;
+	return spl_was_boot_source();
 }
 
 static int pmic_set_bit(int reg, int bit, int value)
 {
+	struct udevice *pmic;
 	uint8_t byte;
+	int ret;
 
-	if (i2c_read(PMIC_I2C_DEVICE_ADDRESS, reg, 1, &byte, sizeof(byte))) {
+	ret = as3722_get(&pmic);
+	if (ret)
+		return -ENOENT;
+
+	ret = dm_i2c_read(pmic, reg, &byte, sizeof(byte));
+	if (ret) {
 		VBDEBUG("i2c_read fail: reg=%02x\n", reg);
-		return 1;
+		return ret;
 	}
 
 	if (value)
@@ -45,9 +58,10 @@ static int pmic_set_bit(int reg, int bit, int value)
 	else
 		byte &= ~(1 << bit);
 
-	if (i2c_write(PMIC_I2C_DEVICE_ADDRESS, reg, 1, &byte, sizeof(byte))) {
+	ret = dm_i2c_write(pmic, reg, &byte, sizeof(byte));
+	if (ret) {
 		VBDEBUG("i2c_write fail: reg=%02x\n", reg);
-		return 1;
+		return ret;
 	}
 
 	return 0;
@@ -56,18 +70,26 @@ static int pmic_set_bit(int reg, int bit, int value)
 /* This function never returns */
 void cold_reboot(void)
 {
-	if (i2c_set_bus_num(PMIC_I2C_BUS)) {
-		VBDEBUG("i2c_set_bus_num fail\n");
-		goto fatal;
+	const void *blob = gd->fdt_blob;
+	struct gpio_desc desc;
+	int ret, node;
+
+	VBDEBUG("cold_reboot\n");
+	mdelay(100);
+	node = fdt_path_offset(blob, "/config");
+	ret = gpio_request_by_name_nodev(blob, node, "reset-gpio", 0, &desc,
+					 GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+	if (ret && ret != -ENOENT)
+		VBDEBUG("cold_reboot: reset failed: %d\n", ret);
+	VBDEBUG("gpio reset %d\n", ret);
+	mdelay(100);
+
+	/* Set force-reset bit in PMIC reg 0x36 */
+	if (!pmic_set_bit(PMIC_RESET_CTRL, 0, 1)) {
+		/* Wait for 10 ms. If not rebootting, go to endless loop */
+		mdelay(10);
 	}
 
-	/*  Set force-reset bit in PMIC reg 0x36 */
-	pmic_set_bit(PMIC_RESET_CTRL, 0, 1);
-
-	/* Wait for 10 ms. If not rebootting, go to endless loop */
-	udelay(10 * 1000);
-
-fatal:
 	printf("Please press cold reboot button\n");
 	while (1)
 		;
@@ -76,18 +98,14 @@ fatal:
 /* This function never returns */
 void power_off(void)
 {
-	if (i2c_set_bus_num(PMIC_I2C_BUS)) {
-		VBDEBUG("i2c_set_bus_num fail\n");
-		goto fatal;
+	VBDEBUG("power_off\n");
+	mdelay(100);
+	/* Set shut-down bit in PMIC reg 0x36*/
+	if (!pmic_set_bit(PMIC_RESET_CTRL, 1, 1)) {
+		/* Wait for 10 ms. If not powering off, go to endless loop */
+		mdelay(10);
 	}
 
-	/* Set shut-down bit in PMIC reg 0x36*/
-	pmic_set_bit(PMIC_RESET_CTRL, 1, 1);
-
-	/* Wait for 10 ms. If not powering off, go to endless loop */
-	udelay(10 * 1000);
-
-fatal:
 	printf("Please unplug the power cable and battery\n");
 	while (1)
 		;

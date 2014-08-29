@@ -63,7 +63,6 @@ static int boot_device_usb_start(uint32_t disk_flags)
 			if (board_use_usb_keyboard(FIRMWARE_TYPE_RECOVERY))
 				drv_usb_kbd_init();
 #endif
-			usb_stor_scan(/*mode=*/1);
 			is_enumerated = 1;
 		}
 	}

@@ -11,6 +11,7 @@
 /* Implementation of firmware storage access interface for SPI */
 
 #include <common.h>
+#include <dm.h>
 #include <fdtdec.h>
 #include <libfdt.h>
 #include <malloc.h>
@@ -54,7 +55,7 @@ static int read_spi(firmware_storage_t *file, uint32_t offset, uint32_t count,
 	if (border_check(flash, offset, count))
 		return -1;
 
-	if (flash->read(flash, offset, count, buf)) {
+	if (spi_flash_read(flash, offset, count, buf)) {
 		VBDEBUG("SPI read fail\n");
 		return -1;
 	}
@@ -124,12 +125,12 @@ static int write_spi(firmware_storage_t *file, uint32_t offset, uint32_t count,
 
 	backup_buf = n > sizeof(static_buf) ? malloc(n) : static_buf;
 
-	if ((status = flash->read(flash, k, n, backup_buf))) {
+	if ((status = spi_flash_read(flash, k, n, backup_buf))) {
 		VBDEBUG("cannot backup data: %d\n", status);
 		goto EXIT;
 	}
 
-	if ((status = flash->erase(flash, k, n))) {
+	if ((status = spi_flash_erase(flash, k, n))) {
 		VBDEBUG("SPI erase fail: %d\n", status);
 		goto EXIT;
 	}
@@ -137,7 +138,7 @@ static int write_spi(firmware_storage_t *file, uint32_t offset, uint32_t count,
 	/* combine data we want to write and backup data */
 	memcpy(backup_buf + (offset - k), buf, count);
 
-	if (flash->write(flash, k, n, backup_buf)) {
+	if (spi_flash_write(flash, k, n, backup_buf)) {
 		VBDEBUG("SPI write fail\n");
 		goto EXIT;
 	}
@@ -163,7 +164,7 @@ static int sw_wp_enabled_spi(firmware_storage_t *file)
 	uint8_t yes_it_is = 0;
 	int r = 0;
 
-	r = spi_flash_read_sw_wp_status(file->context, &yes_it_is);
+// 	r = spi_flash_read_sw_wp_status(file->context, &yes_it_is);
 	if (r) {
 		VBDEBUG("spi_flash_read_sw_wp_status() failed: %d\n", r);
 		return 0;
@@ -177,7 +178,9 @@ int firmware_storage_open(firmware_storage_t *file)
 {
 	const void *blob = gd->fdt_blob;
 	struct spi_flash *flash;
-	int parent, node;
+	struct udevice *dev;
+	int node;
+	int ret;
 
 	node = cros_fdtdec_config_node(blob);
 	if (node < 0)
@@ -189,18 +192,13 @@ int firmware_storage_open(firmware_storage_t *file)
 		return -1;
 	}
 
-	parent = fdt_parent_offset(blob, node);
-	if (parent < 0) {
-		VBDEBUG("fail to look up SPI parent: %d\n", parent);
-		return -1;
-	}
-
-	flash = spi_flash_probe_fdt(blob, node, parent);
-	if (!flash) {
+	ret = uclass_get_device_by_of_offset(UCLASS_SPI_FLASH, node, &dev);
+	if (ret) {
 		VBDEBUG("fail to init SPI flash at %s\n",
 			fdt_get_name(blob, node, NULL));
 		return -1;
 	}
+	flash = dev_get_uclass_priv(dev);
 
 	file->read = read_spi;
 	file->write = write_spi;

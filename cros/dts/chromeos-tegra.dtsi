@@ -11,7 +11,7 @@
  * NOTE: The addresses below are for T30-and-above SoCs, i.e. NOT T20!
  */
 
-/include/ "factory-friendly.dtsi"
+#include "factory-friendly.dtsi"
 
 / {
 	chromeos-config {
@@ -30,16 +30,59 @@
 		 * Memory addresses (offsets off the DRAM base) for kernel,
 		 * cros-system and gbb
 		 */
-		kernel-offset = <0x00408000 0x00800000>;
+		kernel-offset = <0x02408000 0x00800000>;
 		cros-system-data-offset = <0x00C08000 0x8000>;
-		google-binary-block-offset = <0x00C10000 0x80000>;
+		google-binary-block-offset = <0x00C10000 0x120000>;
 
 		firmware-storage = <&firmware_storage_spi>;
 		nvstorage-media = "cros-ec";
+
+		virtual-dev-switch;
+
+		/* disable memory clear */
+		disable-memory-clear;
+
+		vboot-flag-write-protect {
+			compatible = "google,gpio-flag";
+			gpio = <&gpio 137 1>; /* KB_ROW1/PR1 */
+		};
+
+		vboot-flag-developer {
+			compatible = "google,const-flag";
+			value = <0>;
+		};
+
+		vboot-flag-ec-in-rw {
+			compatible = "google,gpio-flag";
+			gpio = <&gpio 164 0>; /* GPIO_PU4 */
+		};
+
+		vboot-flag-lid-open {
+			compatible = "google,gpio-flag";
+			gpio = <&gpio 140 0>; /* KB_ROW4/PR4 */
+		};
+
+		vboot-flag-power-off {
+			compatible = "google,gpio-flag";
+			gpio = <&gpio 128 1>; /* KB_COL0/PQ0 */
+		};
+
+		/* option rom */
+		vboot-flag-oprom-loaded {
+			compatible = "google,const-flag";
+			value = <0>;
+		};
 	};
 
 	config {
+		hwid = "Google_Nyan_Big.5640.0.0";
 		silent_console = <0>;
+
+		/* Normally we load U-Boot to SDRAM... */
+		u-boot-memory = "/memory";
+		u-boot-offset = <0x10e000 0x100000>;
+		load-environment = <1>;
+		reset-gpio = <&gpio TEGRA_GPIO(I, 5) GPIO_ACTIVE_LOW>;
 	};
 
 	chosen {

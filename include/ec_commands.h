@@ -1555,6 +1555,18 @@ struct ec_params_sb_wr_block {
 	uint16_t data[32];
 } __packed;
 
+
+/* Inform the EC of the verified boot mode selected by the AP */
+#define EC_CMD_ENTERING_MODE 0xb6
+
+struct ec_params_entering_mode {
+	int vboot_mode;
+} __packed;
+
+#define EC_VBOOT_MODE_NORMAL    0
+#define EC_VBOOT_MODE_DEVELOPER 1
+#define EC_VBOOT_MODE_RECOVERY  2
+
 /*****************************************************************************/
 /* System commands */
 

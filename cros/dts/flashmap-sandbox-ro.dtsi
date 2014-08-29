@@ -24,13 +24,13 @@
 		/* ---- Section: Read-only ---- */
 		ro-section {
 			label = "ro-section";
-			reg = <0x00000000 0x003f0000>;
+			size = <0x3c0000>;
 			read-only;
 		};
 
 		ro-boot {
 			label = "u-boot";
-			size = <0x300000>;
+			size = <0x3a0000>;
 			read-only;
 			type = "blob boot,dtb";
 			required;
@@ -67,7 +67,7 @@
 
 		ro-boot-rec {
 			label = "u-boot-rec";
-			size = <0x300000>;
+			size = <0x3a0000>;
 			read-only;
 			type = "blob boot,dtb";
 			required;
@@ -87,7 +87,7 @@
 			label = "ro-vpd";
 
 			/* VPD offset must be aligned to 4K bytes */
-			size = <0x00010000>;
+			size = <0x0001000>;
 			read-only;
 			type = "wiped";
 			wipe-value = [ff];

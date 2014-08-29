@@ -14,6 +14,8 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
+#include <mapmem.h>
 #include <asm/io.h>
 #include <cros_ec.h>
 #include <cros/common.h>
@@ -266,8 +268,15 @@ static int do_vboot_chrome_ec(cmd_tbl_t *cmdtp, int flag,
 		int argc, char * const argv[])
 {
 	struct fdt_cros_ec ec;
+	struct udevice *dev;
+	int ret;
 
-	if (cros_ec_decode_ec_flash(gd->fdt_blob, &ec)) {
+	ret = uclass_get_device(UCLASS_CROS_EC, 0, &dev);
+	if (ret) {
+		VbExDebug("Failed to find EC\n");
+		return 1;
+	}
+	if (cros_ec_decode_ec_flash(gd->fdt_blob, dev->of_offset, &ec)) {
 		VbExDebug("Failed to load EC config from fdt!\n");
 		return 1;
 	}
@@ -296,16 +305,16 @@ static int do_vboot_test_all(cmd_tbl_t *cmdtp,
 	return ret;
 }
 
-U_BOOT_SUBCMD_START(cmd_vboot_test_sub)
-	U_BOOT_CMD_MKENT(all, 0, 1, do_vboot_test_all, "", "")
-	U_BOOT_CMD_MKENT(fwrw, 0, 1, do_vboot_test_fwrw, "", "")
-	U_BOOT_CMD_MKENT(memwipe, 0, 1, do_vboot_test_memwipe, "", "")
-	U_BOOT_CMD_MKENT(gpio, 0, 1, do_vboot_test_gpio, "", "")
-	U_BOOT_CMD_MKENT(reboot, 0, 1, do_vboot_reboot, "", "")
-	U_BOOT_CMD_MKENT(poweroff, 0, 1, do_vboot_poweroff, "", "")
-	U_BOOT_CMD_MKENT(fmap, 0, 1, do_vboot_fmap, "", "")
-	U_BOOT_CMD_MKENT(chrome_ec, 0, 1, do_vboot_chrome_ec, "", "")
-U_BOOT_SUBCMD_END
+static cmd_tbl_t cmd_vboot_test_sub[] = {
+	U_BOOT_CMD_MKENT(all, 0, 1, do_vboot_test_all, "", ""),
+	U_BOOT_CMD_MKENT(fwrw, 0, 1, do_vboot_test_fwrw, "", ""),
+	U_BOOT_CMD_MKENT(memwipe, 0, 1, do_vboot_test_memwipe, "", ""),
+	U_BOOT_CMD_MKENT(gpio, 0, 1, do_vboot_test_gpio, "", ""),
+	U_BOOT_CMD_MKENT(reboot, 0, 1, do_vboot_reboot, "", ""),
+	U_BOOT_CMD_MKENT(poweroff, 0, 1, do_vboot_poweroff, "", ""),
+	U_BOOT_CMD_MKENT(fmap, 0, 1, do_vboot_fmap, "", ""),
+	U_BOOT_CMD_MKENT(chrome_ec, 0, 1, do_vboot_chrome_ec, "", ""),
+};
 
 static int do_vboot_test(cmd_tbl_t *cmdtp,
 		int flag, int argc, char * const argv[])

@@ -8,34 +8,15 @@
 # Software Foundation.
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)libcros_board.o
-
-COBJS-$(CONFIG_CHROMEOS) += power_management.o
-COBJS-$(CONFIG_CHROMEOS) += utility.o
-COBJS-$(CONFIG_CHROMEOS_GPIO_FLAG) += vboot_flag_gpio_arch.o
-COBJS-$(CONFIG_CHROMEOS) += legacy.o
-COBJS-$(CONFIG_POWER_TPS65090_EC) += tps65090_ec.o
+obj-$(CONFIG_CHROMEOS) += power_management.o
+obj-$(CONFIG_CHROMEOS) += utility.o
+obj-$(CONFIG_CHROMEOS_GPIO_FLAG) += vboot_flag_gpio_arch.o
+obj-$(CONFIG_CHROMEOS) += legacy.o
+obj-$(CONFIG_POWER_TPS65090_EC) += tps65090_ec.o
 
 ifdef CONFIG_SPL_BUILD
 ifdef CONFIG_VAR_SIZE_SPL
-COBJS-$(CONFIG_CHROMEOS) += verify.o
-COBJS-$(CONFIG_CHROMEOS) += wakeup.o
+obj-$(CONFIG_CHROMEOS) += verify.o
+obj-$(CONFIG_CHROMEOS) += wakeup.o
 endif
 endif
-
-COBJS	:= $(COBJS-y)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-
-$(LIB):	$(obj).depend $(OBJS)
-	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################

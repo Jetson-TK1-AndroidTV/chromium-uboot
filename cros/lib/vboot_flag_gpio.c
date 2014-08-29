@@ -11,6 +11,8 @@
 /* Implementation of vboot flag accessor from GPIO hardware */
 
 #include <common.h>
+#include <dm.h>
+#include <errno.h>
 #include <fdtdec.h>
 #include <asm-generic/gpio.h>
 #include <asm/global_data.h>
@@ -36,21 +38,21 @@ static int vboot_flag_setup_gpio(enum vboot_flag_id id,
 {
 	const void *blob = gd->fdt_blob;
 	unsigned long delay_time;
+	int ret;
 
-	if (fdtdec_decode_gpio(blob, context->node, "gpio",
-			&context->gpio_state)) {
+	ret = gpio_request_by_name_nodev(blob, context->node, "gpio", 0,
+					 &context->gpio_state, GPIOD_IS_IN);
+	if (ret && ret != ENOENT && ret != -EBUSY) {
 		VBDEBUG("failed to decode GPIO state: %s\n",
 			vboot_flag_node_name(id));
 		return -1;
 	}
-	fdtdec_setup_gpio(&context->gpio_state);
-	if (fdt_gpio_isvalid(&context->gpio_state)) {
+	if (!ret) {
 		if (vboot_flag_setup_gpio_arch(id, context)) {
 			VBDEBUG("arch specific setup failed: %s\n",
 				vboot_flag_node_name(id));
 			return -1;
 		}
-		gpio_direction_input(context->gpio_state.gpio);
 	}
 
 	/*
@@ -73,11 +75,13 @@ static int vboot_flag_setup_gpio(enum vboot_flag_id id,
 
 #ifdef CONFIG_SANDBOX
 	int value;
+	struct udevice *dev = context->gpio_state.dev;
 
 	value = fdtdec_get_int(blob, context->node, "sandbox-value", -1);
 	if (value != -1)
-		sandbox_gpio_set_value(context->gpio_state.gpio, value);
-	printf("Sandbox gpio %d = %d\n", context->gpio_state.gpio, value);
+		sandbox_gpio_set_value(dev, context->gpio_state.offset, value);
+	printf("Sandbox gpio %s/%d = %d\n", dev->name,
+	       context->gpio_state.offset, value);
 #endif
 
 	context->initialized = 1;
@@ -95,9 +99,9 @@ static int vboot_flag_fetch_gpio(enum vboot_flag_id id,
 		VBDEBUG("gpio state is not initialized\n");
 		return -1;
 	}
-	details->port = context->gpio_state.gpio;
+	details->port = gpio_get_number(&context->gpio_state);
 	details->active_high = (context->gpio_state.flags &
-			FDT_GPIO_ACTIVE_LOW) ? 0 : 1;
+			GPIOD_ACTIVE_LOW) ? 0 : 1;
 	p = details->active_high ? 0 : 1;
 
 	valid_time = context->gpio_valid_time;

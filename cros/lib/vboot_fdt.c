@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
 #include <cros/nvstorage.h>
 #include <cros/vboot.h>
 #include <cros/vboot_flag.h>
@@ -149,9 +150,9 @@ int vboot_write_to_fdt(const struct vboot_info *vboot, void *blob)
 			} \
 		} while (0)
 	err = 0;
-	CALL(fdt_ensure_subnode(blob, 0, "firmware"));
+	CALL(fdt_find_or_add_subnode(blob, 0, "firmware"));
 	node = err;
-	CALL(fdt_ensure_subnode(blob, node, "chromeos"));
+	CALL(fdt_find_or_add_subnode(blob, node, "chromeos"));
 	node = err;
 
 	CALL(fdt_setprop_string(blob, node, "compatible",

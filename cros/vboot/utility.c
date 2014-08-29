@@ -46,7 +46,7 @@ void *cros_memalign_cache(size_t n)
 	if (!dcache_line_size) {
 		/* Select cache line size based on available information */
 #ifdef CONFIG_ARM
-		dcache_line_size = dcache_get_line_size();
+		dcache_line_size = ARCH_DMA_MINALIGN;
 #elif defined CACHE_LINE_SIZE
 		dcache_line_size = CACHE_LINE_SIZE;
 #else
