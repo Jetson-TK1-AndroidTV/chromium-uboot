@@ -625,6 +625,7 @@ HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(srctree)/board/$(VENDOR)/common/Makef
 libs-y += lib/
 libs-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
 libs-$(CONFIG_OF_EMBED) += dts/
+libs-$(CONFIG_CHROMEOS) += cros/
 libs-y += fs/
 libs-y += net/
 libs-y += disk/
@@ -701,6 +702,63 @@ LDPPFLAGS += \
 
 #########################################################################
 #########################################################################
+
+ifdef VBOOT_SOURCE
+# Go off and build vboot_reference directory with the same CFLAGS
+# This is a eng convenience, not used by ebuilds
+# set VBOOT_MAKEFLAGS to required make flags, e.g. MOCK_TPM=1 if no TPM
+CFLAGS_VBOOT = $(filter-out -Wstrict-prototypes, $(KBUILD_CFLAGS) $(PLATFORM_CPPFLAGS))
+
+# Always call the vboot Makefile, since we don't have its dependencies
+#
+#  FIRMWARE_ARCH:
+#
+#    This can be either a real hardware architecture for which vboot
+#    can be built, or it can be unset.  When unset, vboot will be
+#    built for the host architecture.  When set, it has to be one of
+#    arm, i386, and x86_64.
+#
+#  ARCH:
+#
+#    ARCH must either be a real hardware architecture for which vboot
+#    can be built, or it must be 'amd64'.  'amd64' is used when
+#    building for the host architecture (which consequently must be
+#    'amd64').
+#
+#  ARCH is an exported variable, and since 'sandbox' is not an
+#  appropriate architecture for vboot, it must be changed on the
+#  command line.  However, since, without 'override', it is not
+#  possible to change the value of Make variables set on the command
+#  line, both FIRMWARE_ARCH and ARCH both must be set correctly before
+#  invoking the sub-make.
+#
+VBOOT_SUBMAKE_FIRMWARE_ARCH=$(filter-out sandbox,$(subst x86,i386,$(ARCH)))
+VBOOT_SUBMAKE_ARCH=$(subst sandbox,amd64,$(ARCH))
+
+# HACK: for sandbox, vboot 2014 seems to assume it is a host build
+ifdef CONFIG_SANDBOX
+VBOOT_SUBMAKE_FIRMWARE_ARCH=amd64
+endif
+
+.PHONY : vboot
+vboot:
+	FIRMWARE_ARCH=$(VBOOT_SUBMAKE_FIRMWARE_ARCH) \
+		CC=$(CROSS_COMPILE)gcc \
+		CFLAGS="$(CFLAGS_VBOOT)" REGION_READ=1 \
+		$(MAKE) -C $(VBOOT_SOURCE) \
+		BUILD=$(CURDIR)/include/generated/vboot \
+		fwlib
+
+PLATFORM_LIBS += $(CURDIR)/include/generated/vboot/vboot_fw.a
+VBOOT_TARGET := vboot
+endif
+
+# Add vboot_reference lib
+ifdef CONFIG_CHROMEOS
+ifndef VBOOT_SOURCE
+PLATFORM_LIBS += $(VBOOT)/lib/vboot_fw.a
+endif
+endif
 
 ifneq ($(CONFIG_BOARD_SIZE_LIMIT),)
 BOARD_SIZE_CHECK = \
@@ -1134,7 +1192,7 @@ cmd_smap = \
 	$(CC) $(c_flags) -DSYSTEM_MAP="\"$${smap}\"" \
 		-c $(srctree)/common/system_map.c -o common/system_map.o
 
-u-boot:	$(u-boot-init) $(u-boot-main) u-boot.lds
+u-boot:	$(u-boot-init) $(u-boot-main) $(VBOOT_TARGET) u-boot.lds
 	$(call if_changed,u-boot__)
 ifeq ($(CONFIG_KALLSYMS),y)
 	$(call cmd,smap)
