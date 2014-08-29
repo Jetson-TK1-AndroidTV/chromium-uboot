@@ -80,6 +80,11 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(INTEL_QRK_MRC, "intel,quark-mrc"),
 	COMPAT(SOCIONEXT_XHCI, "socionext,uniphier-xhci"),
 	COMPAT(COMPAT_INTEL_PCH, "intel,bd82x6x"),
+	COMPAT(COMPAT_GOOGLE_CONST_FLAG, "google,const-flag"),
+	COMPAT(COMPAT_GOOGLE_GPIO_FLAG, "google,gpio-flag"),
+	COMPAT(COMPAT_GOOGLE_CROS_EC_FLAG, "google,cros-ec-flag"),
+	COMPAT(COMPAT_GOOGLE_SYSINFO_FLAG, "google,sysinfo-flag"),
+	COMPAT(COMPAT_GOOGLE_KEY_FLAG, "google,key-flag"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)

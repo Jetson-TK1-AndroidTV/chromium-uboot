@@ -178,6 +178,11 @@ enum fdt_compat_id {
 	COMPAT_INTEL_QRK_MRC,		/* Intel Quark MRC */
 	COMPAT_SOCIONEXT_XHCI,		/* Socionext UniPhier xHCI */
 	COMPAT_INTEL_PCH,		/* Intel PCH */
+	COMPAT_GOOGLE_CONST_FLAG,	/* Google Constant Flag-Input */
+	COMPAT_GOOGLE_GPIO_FLAG,	/* Google GPIO Flag-Input */
+	COMPAT_GOOGLE_CROS_EC_FLAG,	/* Google EC Flag-Input */
+	COMPAT_GOOGLE_SYSINFO_FLAG,	/* Google Sysinfo Flag-Input */
+	COMPAT_GOOGLE_KEY_FLAG,		/* Google Key Flag-Input */
 
 	COMPAT_COUNT,
 };
