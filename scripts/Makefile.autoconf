@@ -122,6 +122,8 @@ else
 	fi;								\
 	ln -fsn $$dest arch/$(ARCH)/include/asm/arch
 endif
+	$(Q)ln -fsn $(srctree)/cros/include \
+		include/cros
 
 PHONY += FORCE
 FORCE:

@@ -1,16 +1,31 @@
 /dts-v1/;
 
+#include "skeleton.dtsi"
+
+#ifdef CONFIG_CHROMEOS
+#include "chromeos-sandbox.dtsi"
+#include "flashmap-sandbox-ro.dtsi"
+#include "flashmap-16mb-rw.dtsi"
+#endif
+
 #define USB_CLASS_HUB			9
 
 / {
 	#address-cells = <1>;
 	#size-cells = <1>;
 
+	model = "Sandbox test environment";
+
 	aliases {
 		eth5 = "/eth@90000000";
 		i2c0 = &i2c_0;
 		pci0 = &pci;
 		rtc0 = &rtc_0;
+		spi0 = "/spi@0";
+	};
+
+	memory {
+		reg = <0 0x08000000>;
 	};
 
 	chosen {
@@ -39,6 +54,9 @@
 		compatible = "demo-simple";
 		colour = "white";
 		sides = <6>;
+	};
+
+	gpio: gpio {
 	};
 
 	cros_ec: cros-ec@0 {
@@ -125,9 +143,9 @@
 		cs-gpios = <0>, <&gpio_a 0>;
 		firmware_storage_spi: flash@0 {
 			reg = <0>;
-			compatible = "spansion,m25p16", "sandbox,spi-flash";
+			compatible = "spansion,m25p128", "spi-flash";
 			spi-max-frequency = <40000000>;
-			sandbox,filename = "spi.bin";
+			sandbox,filename = "b/chromeos_sandbox/out/image.bin";
 		};
 	};
 
