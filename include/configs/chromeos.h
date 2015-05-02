@@ -267,7 +267,7 @@
  * what to boot from.
  */
 #define CONFIG_EXT2_BOOT_HELPER_SETTINGS \
-	"rootpart=3\0" \
+	"rootpart=5\0" \
 	"cros_bootfile=/boot/vmlinux.uimg\0" \
 	\
 	"script_part=c\0" \
@@ -286,6 +286,7 @@
 	\
 	"ext2_boot=" \
 		"run regen_ext2_bootargs; " \
+		"setenv rootpart 5; "\
 		"if ext2load ${devtype} ${devnum}:${rootpart} " \
 			"${loadaddr} ${cros_bootfile}; then " \
 			"if test \"${kernaddr}\" != \"\"; then "\

@@ -12,7 +12,11 @@
 
 #include "tegra124-common.h"
 
-#include <configs/chromeos.h>
+#define CONFIG_EXTRA_BOOTARGS	\
+	"earlyprintk=ttyS0,115200n8 console=tty1 keep_bootcon " \
+	"loglevel=7 init=/sbin/init oops=panic panic=-1 " \
+	"noinitrd cros_debug vt.global_cursor_default=0 " \
+	"kern_guid=be426bbb-cd3a-d14a-8fe7-55bc7b7f12ff "
 
 /* High-level configuration options */
 #define V_PROMPT			"Tegra124 (Nyan-big) # "
@@ -93,6 +97,12 @@
 #define CONFIG_TPM
 #define CONFIG_CMD_TPM
 #define CONFIG_TPM_TIS_I2C
+
+/*
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_SYS_THUMB_BUILD
+#endif
+*/
 
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
