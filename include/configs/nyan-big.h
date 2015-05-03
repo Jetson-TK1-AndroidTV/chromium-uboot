@@ -89,6 +89,11 @@
 #undef CONFIG_LOADADDR
 #define CONFIG_LOADADDR		0x82408000
 
+/* TPM */
+#define CONFIG_TPM
+#define CONFIG_CMD_TPM
+#define CONFIG_TPM_TIS_I2C
+
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
 

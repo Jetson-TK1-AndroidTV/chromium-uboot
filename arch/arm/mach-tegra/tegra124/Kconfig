@@ -18,6 +18,11 @@ config TARGET_NYAN_BIG
 	  PMIC. The retail name is the Acer Chromebook 13 CB5-311-T7NN
 	  (13.3-inch HD, NVIDIA Tegra K1, 2GB).
 
+config TARGET_CHROMEOS_NYAN_BIG
+	bool "Google/NVIDIA Nyan-big Chromebook (Verified boot)"
+	help
+	  This is a variant of Nyan Big with Chrome OS verified boot enabled.
+
 config TARGET_VENICE2
 	bool "NVIDIA Tegra124 Venice2"
 

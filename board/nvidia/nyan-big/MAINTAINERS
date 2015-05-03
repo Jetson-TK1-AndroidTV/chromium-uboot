@@ -4,3 +4,10 @@ S:	Maintained
 F:	board/nvidia/nyan-big/
 F:	include/configs/nyan-big.h
 F:	configs/nyan-big_defconfig
+
+CHROME OS NYAN-BIG BOARD
+M:	Simon Glass <sjg@chromium.org>
+S:	Maintained
+F:	board/nvidia/nyan-big/
+F:	include/configs/chromeos_nyan-big.h
+F:	configs/chromeos_nyan-big_defconfig

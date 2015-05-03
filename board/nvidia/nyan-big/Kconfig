@@ -10,3 +10,16 @@ config SYS_CONFIG_NAME
 	default "nyan-big"
 
 endif
+
+if TARGET_CHROMEOS_NYAN_BIG
+
+config SYS_BOARD
+	default "nyan-big"
+
+config SYS_VENDOR
+	default "nvidia"
+
+config SYS_CONFIG_NAME
+	default "chromeos_nyan-big"
+
+endif
