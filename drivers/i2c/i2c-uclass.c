@@ -71,6 +71,7 @@ static int i2c_read_bytewise(struct udevice *dev, uint offset,
 		ret = ops->xfer(bus, msg, ptr - msg);
 		if (ret)
 			return ret;
+		udelay(60);
 	}
 
 	return 0;
@@ -95,6 +96,7 @@ static int i2c_write_bytewise(struct udevice *dev, uint offset,
 		ret = ops->xfer(bus, msg, 1);
 		if (ret)
 			return ret;
+		udelay(60);
 	}
 
 	return 0;
