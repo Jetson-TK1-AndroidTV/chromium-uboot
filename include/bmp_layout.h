@@ -11,12 +11,12 @@
 #ifndef _BMP_H_
 #define _BMP_H_
 
-typedef struct bmp_color_table_entry {
+typedef struct __packed bmp_color_table_entry {
 	__u8	blue;
 	__u8	green;
 	__u8	red;
 	__u8	reserved;
-} __attribute__ ((packed)) bmp_color_table_entry_t;
+} bmp_color_table_entry_t;
 
 /* When accessing these fields, remember that they are stored in little
    endian format, so use linux macros, e.g. le32_to_cpu(width)          */
