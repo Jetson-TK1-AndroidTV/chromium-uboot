@@ -399,7 +399,7 @@ static int do_vbexport_test_key(cmd_tbl_t *cmdtp, int flag,
 
 static int show_screen_and_delay(uint32_t screen_type)
 {
-	if (VbExDisplayScreen(screen_type)) {
+	if (VbExDisplayScreen(screen_type, 0)) {
 		VbExDebug("Failed to show a screen.\n");
 		return 1;
 	}

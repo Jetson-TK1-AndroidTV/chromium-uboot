@@ -150,7 +150,7 @@ static void print_on_center(const char *message)
 }
 #endif
 
-VbError_t VbExDisplayScreen(uint32_t screen_type)
+VbError_t VbExDisplayScreen(uint32_t screen_type, uint32_t locale)
 {
 	const char *msg = NULL;
 
