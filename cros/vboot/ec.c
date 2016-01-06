@@ -119,12 +119,13 @@ VbError_t VbExEcDisableJump(int devidx)
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbExEcHashRW(int devidx, const uint8_t **hash, int *hash_size)
+VbError_t VbExEcHashImage(int devidx, enum VbSelectFirmware_t select,
+			  const uint8_t **hash, int *hash_size)
 {
 	struct cros_ec_dev *mdev = board_get_cros_ec_dev();
 	static struct ec_response_vboot_hash resp __aligned(8);
 
-	if (devidx != 0)
+	if (devidx != 0 || select == VB_SELECT_FIRMWARE_READONLY)
 		return VBERROR_UNKNOWN;
 
 	if (!mdev) {
@@ -189,12 +190,13 @@ static VbError_t ec_protect_rw(int protect)
 	return VBERROR_UNKNOWN;
 }
 
-VbError_t VbExEcUpdateRW(int devidx, const uint8_t  *image, int image_size)
+VbError_t VbExEcUpdateImage(int devidx, enum VbSelectFirmware_t select,
+			    const uint8_t *image, int image_size)
 {
 	struct cros_ec_dev *mdev = board_get_cros_ec_dev();
 	int rv;
 
-	if (devidx != 0)
+	if (devidx != 0 || select == VB_SELECT_FIRMWARE_READONLY)
 		return VBERROR_UNKNOWN;
 
 	if (!mdev) {
@@ -212,9 +214,9 @@ VbError_t VbExEcUpdateRW(int devidx, const uint8_t  *image, int image_size)
 	return rv == 0 ? VBERROR_SUCCESS : VBERROR_UNKNOWN;
 }
 
-VbError_t VbExEcProtectRW(int devidx)
+VbError_t VbExEcProtect(int devidx, enum VbSelectFirmware_t select)
 {
-	if (devidx != 0)
+	if (devidx != 0 || select == VB_SELECT_FIRMWARE_READONLY)
 		return VBERROR_UNKNOWN;
 
 	return ec_protect_rw(1);
@@ -234,8 +236,8 @@ VbError_t VbExEcEnteringMode(int devidx, enum VbEcBootMode_t mode)
 	return cros_ec_entering_mode(mdev, mode);
 }
 
-VbError_t VbExEcGetExpectedRW(int devidx, enum VbSelectFirmware_t select,
-			      const uint8_t **image, int *image_size)
+VbError_t VbExEcGetExpectedImage(int devidx, enum VbSelectFirmware_t select,
+				 const uint8_t **image, int *image_size)
 {
 	struct fmap_firmware_entry *fw_entry;
 	struct twostop_fmap fmap;
@@ -247,7 +249,7 @@ VbError_t VbExEcGetExpectedRW(int devidx, enum VbSelectFirmware_t select,
 	*image = NULL;
 	*image_size = 0;
 
-	if (devidx != 0)
+	if (devidx != 0 || select == VB_SELECT_FIRMWARE_READONLY)
 		return VBERROR_UNKNOWN;
 
 	cros_fdtdec_flashmap(gd->fdt_blob, &fmap);
@@ -305,15 +307,15 @@ VbError_t VbExEcGetExpectedRW(int devidx, enum VbSelectFirmware_t select,
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbExEcGetExpectedRWHash(int devidx, enum VbSelectFirmware_t select,
-		       const uint8_t **hash, int *hash_size)
+VbError_t VbExEcGetExpectedImageHash(int devidx, enum VbSelectFirmware_t select,
+				     const uint8_t **hash, int *hash_size)
 {
 	struct twostop_fmap fmap;
 	struct fmap_entry *ec;
 
 	*hash = NULL;
 
-	if (devidx != 0)
+	if (devidx != 0 || select == VB_SELECT_FIRMWARE_READONLY)
 		return VBERROR_UNKNOWN;
 
 	/* TODO: Decode the flashmap once and reuse throughout. */
