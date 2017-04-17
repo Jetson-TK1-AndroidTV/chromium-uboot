@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2013-2014
+ * (C) Copyright 2013-2017
  * NVIDIA Corporation <www.nvidia.com>
  *
  * SPDX-License-Identifier:     GPL-2.0
@@ -14,6 +14,15 @@
 #define CONFIG_AS3722_POWER
 
 #include "tegra124-common.h"
+
+#ifdef CONFIG_TEGRA_LP0
+#define CONFIG_TEGRA124_LP0
+#endif
+
+#undef CONFIG_SERIAL_TAG
+#define CONFIG_SERIAL_TAG
+#define CONFIG_TEGRA_SERIAL_HIGH	0x01770000
+#define CONFIG_TEGRA_SERIAL_LOW		0x034200FF
 
 /* High-level configuration options */
 #define V_PROMPT			"Tegra124 (Jetson TK1) # "
@@ -76,12 +85,46 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
+/* Android fastboot support */
+#define CONFIG_CMD_FASTBOOT
+#define CONFIG_FASTBOOT_FLASH
+#define CONFIG_FASTBOOT_GPT_NAME	0
+#define CONFIG_FASTBOOT_FLASH_MMC_DEV	0
+#define CONFIG_USB_FASTBOOT_BUF_SIZE	  0x40000000
+
+/* Android bootimg support */
+#define CONFIG_ANDROID_BOOT_IMAGE
+#define CONFIG_USB_FASTBOOT_BUF_ADDR	  (NV_PA_SDRAM_BASE + 0x10000000)
+#define CONFIG_CMD_BOOTA
+#define CONFIG_CMD_BOOTA_BOOT_PART	      "LNX"
+#define CONFIG_CMD_BOOTA_RECOVERY_PART	  "SOS"
+#define CONFIG_CMD_BOOTA_DT_PART	      "DTB"
+#define CONFIG_ANDROID_DT_HDR_BUFF	      (NV_PA_SDRAM_BASE + 0x03000000)
+#define CONFIG_ANDROID_BOOT_HDR_BUFF	  (NV_PA_SDRAM_BASE + 0x04000000)
+#define BOARD_EXTRA_ENV_SETTINGS \
+	"fastboot_partition_alias_boot=LNX\0" \
+	"fastboot_partition_alias_dtb=DTB\0" \
+	"fastboot_partition_alias_recovery=SOS\0" \
+	"fastboot_partition_alias_system=APP\0" \
+	"fastboot_partition_alias_cache=CAC\0" \
+	"fastboot_partition_alias_misc=MSC\0" \
+	"fastboot_partition_alias_factory=FCT\0" \
+	"fastboot_partition_alias_userdata=UDA\0" \
+	"fastboot_partition_alias_vendor=VNR\0" \
+	"bootargs_append=" \
+	"init=init console=ttyS0,115200n8 board_info=0x0177:0x0000:0x02:0x43:0x00 " \
+	"lp0_vec=2064@0xf46ff000 mem=1862M@2048M vpr=151M@3945M tsec=32M@3913M " \
+	"core_edp_mv=1150 core_edp_ma=4000 androidboot.touch_vendor_id=0 " \
+	"tegraid=40.1.1.0.0 tegra_fbmem=32899072@0xad012000 fbcon=map:1 androidboot.bootreason=pmc:software_reset,pmic:0x0" \
+	"video=tegrafb no_console_suspend=1 memtype=255 ddr_die=2048M@2048M section=256M " \
+	"debug_uartport=lsport,3 android.kerneltype=normal androidboot.serialno=042271508196100002ed " \
+	"maxcpus=4 usbcore.old_scheme_first=1 usb_port_owner_info=2 pmuboard=0x0177:0x0000:0x02:0x43:0x00 " \
+	"touch_id=0@63 lane_owner_info=6 emc_max_dvfs=1 power_supply=Adapter audio_codec=rt5640 gpt \0"
+
+#undef CONFIG_LOADADDR
+#define CONFIG_LOADADDR		0x80408000
+
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
-
-#define CONFIG_ARMV7_PSCI			1
-/* Reserve top 1M for secure RAM */
-#define CONFIG_ARMV7_SECURE_BASE		0xfff00000
-#define CONFIG_ARMV7_SECURE_RESERVE_SIZE	0x00100000
 
 #endif /* __CONFIG_H */

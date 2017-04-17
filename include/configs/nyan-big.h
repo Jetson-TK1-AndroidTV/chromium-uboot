@@ -91,7 +91,7 @@
 #define CONFIG_KEYBOARD
 
 #undef CONFIG_LOADADDR
-#define CONFIG_LOADADDR		0x82408000
+#define CONFIG_LOADADDR 	0x80A00800	/* nvflash default */
 
 /* TPM */
 #define CONFIG_TPM

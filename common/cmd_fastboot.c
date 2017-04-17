@@ -11,7 +11,7 @@
 #include <command.h>
 #include <g_dnl.h>
 
-static int do_fastboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+int do_fastboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	int ret;
 
@@ -38,12 +38,12 @@ static int do_fastboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 	g_dnl_unregister();
 	g_dnl_clear_detach();
-	return CMD_RET_SUCCESS;
+	return 0;
+
 }
 
 U_BOOT_CMD(
-	fastboot,	1,	0,	do_fastboot,
-	"use USB Fastboot protocol",
-	"\n"
-	"    - run as a fastboot usb device"
+ 	fastboot,	1,	1,	do_fastboot,
+ 	"fastboot - enter USB Fastboot protocol",
+	""
 );

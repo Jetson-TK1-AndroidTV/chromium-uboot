@@ -388,4 +388,8 @@ struct pmc_ctlr {
 /* APBDEV_PMC_CNTRL2_0 0x440 */
 #define HOLD_CKE_LOW_EN				(1 << 12)
 
+/* APBDEV_PMC_SCRATCH0_0 0x50 */
+#define PMC_SCRATCH0_RECOVERY_MODE		(1 << 31)
+#define PMC_SCRATCH0_FASTBOOT_MODE		(1 << 30)
+
 #endif	/* PMC_H */
