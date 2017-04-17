@@ -49,6 +49,19 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		2
 
+#define CONFIG_I2C_EDID
+
+/* LCD support */
+#define CONFIG_LCD
+#define CONFIG_PWM_TEGRA
+#define CONFIG_AS3722_POWER
+#define LCD_BPP				LCD_COLOR16
+#define CONFIG_SYS_WHITE_ON_BLACK
+#define CONFIG_CMD_BMP
+
+/* Align LCD to 1MB boundary */
+#define CONFIG_LCD_ALIGNMENT	MMU_SECTION_SIZE
+
 /* SPI */
 #define CONFIG_TEGRA114_SPI		/* Compatible w/ Tegra114 SPI */
 #define CONFIG_TEGRA114_SPI_CTRLS	6

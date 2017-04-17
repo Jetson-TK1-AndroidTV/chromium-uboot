@@ -187,7 +187,7 @@ int board_init(void)
 	warmboot_prepare_code(TEGRA_LP0_ADDR, TEGRA_LP0_SIZE);
 #endif
 
-	return 0;
+	return nvidia_board_init();
 }
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
